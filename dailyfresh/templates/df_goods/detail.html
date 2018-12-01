@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+    <script>
+
+         $(function(){
+        /* 计算价格数量函数*/
+           function calculateTotal(){
+             /* 小计价格*/
+             var sumTotal = 0;
+             var countGood = 0;
+
+            //获取数量
+               count = $('.num_show').val();
+            //获取单价
+               price = {{ g.gprice }};
+            //小计
+               total01 = parseInt(count) * parseFloat(price);
+               $('#gtotal').text(total01.toFixed(2)+'元');
+
+           };
+           function kucun() {
+               kunn = $('#kucun').text()
+               console.log(kunn)
+               if (kunn == 0){
+                    $('div#genghuan').replaceWith("<div style='height: 60px;width: 198px;color: red;font-size: 28px;margin-top: 30px;'>没有库存了</div>")
+               }
+           };
+           kucun();
+           calculateTotal();
+             {# 购买页面 #}
+           $('#buy').click(function () {
+               txt = $('.num_show').val();
+               window.location.href='/cart/add{{ g.id }}_'+txt+'/'
+           })
+             {# 加入购物车  ajax #}
+           $('.add_cart').click(function () {
+               txt = $('.num_show').val();
+               url = '/cart/add{{ g.id }}_'+txt+'/';
+               $.get(url,function (data) {
+                    $('#show_count').text(data.count)
+                   console.log(data.count)
+               })
+           })
+
+           /* 新增*/
+           $('.add').click(function(){
+             txt = $('.num_show').val();
+             if (txt<100){
+               txt=(parseFloat(txt)+1);
+               $('.num_show').val(txt)
+             };
+             goodid = {{ g.id }};
+             count = $(this).val();
+             url = '/cart/edit'+goodid+'_'+count+'/';
+
+              calculateTotal();
+           });
+
+           /* 减少*/
+           $('.minus').click(function(){
+            txt = $('.num_show').val();
+             if (txt>1){
+               txt=(parseFloat(txt)-1);
+               $('.num_show').val(txt)
+             };
+             goodid = {{ g.id }};
+             count = $(this).val();
+             calculateTotal();
+           });
+         })
+    </script>
+
+
+</head>
+<body>
+
+<div class="header_con">
+    <div class="header">
+        <div class="welcome fl">欢迎来到天天生鲜!</div>
+        <div class="fr">
+            {% if request.session.user_name|default:'' != '' %}
+             <div class="user_link fl">
+                <a href="/user/info">欢迎您：{{request.session.user_name}}</a>
+                <span>|</span>
+                 <a href="/user/logout/">退出</a>
+                <span>|</span>
+                <a href="/user/info">用户中心</a>
+                <span>|</span>
+                <a href="/cart/">我的购物车</a>
+                <span>|</span>
+                <a href="/user/order/">我的订单</a>
+            </div>
+            {% else %}
+            <div class="login_btn fl">
+                <a href="/user/login/">登录</a>
+                <span>|</span>
+                <a href="/user/register">注册</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<div class="search_bar clearfix">
+    <a href="/" class="logo fl"><img src="/static/images/logo.png"></a>
+    {% if page_name == 1%}
+    <div class="sub_page_name fl">{{title}}</div>
+    <form method='get' action="/search/" target="_blank">
+    <div class="search_con fr">
+        <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+        <input type="submit" class="input_btn fr" name="" value="搜索">
+    </div>
+    </form>
+    {% endif %}
+    {% if guest_cart == 1 %}
+    <form method='get' action="/search/" target="_blank">
+    <div class="search_con fl">
+        <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+        <input type="submit" class="input_btn fr" name="" value="搜索">
+    </div>
+    </form>
+
+  {% if request.session.user_name|default:'' != '' %}
+  <div class="guest_cart fr">
+        <a href="/cart/" class="cart_name fl">我的购物车</a>
+        <div class="goods_count fl" id="show_count">{{count}}</div>
+    </div>
+  {% else %}
+  <div class="guest_cart fr">
+    <a href="/user/login/" class="cart_name fl">我的购物车</a>
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+
+<div class="navbar_con">
+    <div class="navbar clearfix">
+        <div class="subnav_con fl">
+            <h1>全部商品分类</h1>
+            <span></span>
+            <ul class="subnav">
+                <li><a href="/list1_1_1/" class="fruit">新鲜水果</a></li>
+                <li><a href="/list2_1_1/" class="seafood">海鲜水产</a></li>
+                <li><a href="/list3_1_1/" class="meet">猪牛羊肉</a></li>
+                <li><a href="/list4_1_1/" class="egg">禽类蛋品</a></li>
+                <li><a href="/list5_1_1/" class="vegetables">新鲜蔬菜</a></li>
+                <li><a href="/list6_1_1/" class="ice">速冻食品</a></li>
+            </ul>
+        </div>
+        <ul class="navlist fl">
+            <li><a href="">首页</a></li>
+            <li class="interval">|</li>
+            <li><a href="">手机生鲜</a></li>
+            <li class="interval">|</li>
+            <li><a href="">抽奖</a></li>
+        </ul>
+    </div>
+</div>
+{% if list == 1 %}
+<div class="breadcrumb">
+    <a href="/">全部分类</a>
+    <span>></span>
+    <a href="/list{{goodtype.id}}_1_1/">{{goodtype.ttitle}}</a>
+    {% if isDetail %}
+    <span>></span>
+    <a href="">商品详情</a>
+    {% endif %}
+</div>
+{% endif %}
+  <div class="goods_detail_con clearfix">
+    <div class="goods_detail_pic fl"><img src="/static/{{g.gpic}}"></div>
+
+    <div class="goods_detail_list fr">
+      <h3>{{g.gtitle}}</h3>
+      <p>{{g.gjianjie}}</p>
+      <div class="prize_bar">
+        <span class="show_pirze">¥<em id="gprice">{{g.gprice}}</em></span>
+        <span class="show_unit">单  位：{{g.gunit}}</span>
+      </div>
+      <div id="genghuan">
+                <div class="goods_num clearfix">
+                    <div class="num_name fl">数 量：</div>
+                    <div class="num_add fl">
+                        <input type="text" class="num_show fl" value="1" id="num_show">
+                        <a href="javascript:;" class="add fr" id="add">+</a>
+                        <a href="javascript:;" class="minus fr" id="minus">-</a>
+                    </div>
+                    <div style="margin-left: 350px;line-height: 53px;overflow: hidden;">
+                        <div style="width: 77px;height: 52px; float: left">库 存：</div>
+                        <div style="border: 1px solid #dddddd;width: 77px;height: 52px;text-align: center;line-height: 53px;
+                                overflow: hidden;font-size: 20px;" id="kucun">{{ g.gkucun }}</div>
+
+                    </div>
+                </div>
+                <div class="total">总价：<em id="gtotal"></em></div>
+                <div class="operate_btn">
+                    {% if request.session.user_name|default:'' != '' %}
+                        <a href="javascript:;" class="buy_btn" id="buy">立即购买</a>
+                    {% else %}
+                        <a href="/user/login/" class="buy_btn" id="buy">立即购买</a>
+                    {% endif %}
+                    {% if request.session.user_name|default:'' != '' %}
+                        <a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+                    {% else %}
+                        <a href="/user/login/" class="add_cart" id="add_cart">加入购物车</a>
+                    {% endif %}
+                </div>
+            </div>
+    </div>
+  </div>
+
+
+<div class="main_wrap clearfix">
+    <div class="l_wrap fl clearfix">
+        <div class="new_goods">
+            <h3>新品推荐</h3>
+            <ul>
+                {%for g in newgood%}
+                <li>
+                    <a href="/{{g.id}}"><img src="/static/{{g.gpic}}"></a>
+                    <h4><a href="/{{g.id}}">{{g.gtitle}}</a></h4>
+                    <div class="prize">￥{{g.gprice}}</div>
+                </li>
+                {%endfor%}
+            </ul>
+        </div>
+    </div>
+    <div class="r_wrap fr clearfix">
+      <ul class="detail_tab clearfix">
+        <li class="active">商品介绍</li>
+        <li>评论</li>
+      </ul>
+
+      <div class="tab_content">
+        <dl>
+          <dt>商品详情：</dt>
+          <dd>{{g.gcontent|safe}}</dd>
+        </dl>
+      </div>
+
+    </div>
+
+</div>
+
+
+    <div class="footer no-mp">
+        <div class="foot_link">
+            <a href="#">关于我们</a>
+            <span>|</span>
+            <a href="#">联系我们</a>
+            <span>|</span>
+            <a href="#">招聘人才</a>
+            <span>|</span>
+            <a href="#">友情链接</a>
+        </div>
+        <p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+        <p>电话：010-****888    京ICP备*******8号</p>
+    </div>
+
+</body>
+</html>
